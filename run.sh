@@ -3,7 +3,8 @@
 # Download code
 git clone https://github.com/ignavierng/notears-admm.git
 
-# Generate data 
+# Generate data
+R -e 'renv::restore()' 
 Rscript data_generation.r
 
 # Activate venv
