@@ -22,4 +22,5 @@ bn <- custom.fit(G, params)
 
 # Data generation
 nsamples <- 1000
-rbn(bn, nsamples)
+data <- rbn(bn, nsamples)
+write.csv(data, 'data.csv')
