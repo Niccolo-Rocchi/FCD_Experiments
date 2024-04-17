@@ -1,3 +1,3 @@
 # Instructions
 
-1. To run all, type `bash run.sh`
+1. To execute all, just run `make`.
