@@ -3,8 +3,12 @@ library(bnlearn)
 # Set seed
 set.seed(42)
 
+# Read input space
+input_space <- read.csv('input_space.csv')
+n.nodes <- input_space$nnodes
+nsamples <- 1000
+
 # Graph generation
-n.nodes <- 5
 nodes <- sprintf('%s', seq(1, n.nodes))
 G <- random.graph(nodes, method='melancon')
 
@@ -21,6 +25,5 @@ for (x in nodes(G)) {
 bn <- custom.fit(G, params)
 
 # Data generation
-nsamples <- 1000
 data <- rbn(bn, nsamples)
 write.csv(data, 'data.csv')

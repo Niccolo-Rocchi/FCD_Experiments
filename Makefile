@@ -2,10 +2,12 @@ VENV = env
 PYTHON = $(VENV)/bin/python
 
 # Perform FCD
-fcd : env data.csv | notears-admm
+fcd : env data.csv input_space.csv | notears-admm
 	$(PYTHON) notears-admm.py
+input_space.csv:
+	$(PYTHON) input_space_generation.py
 # Generate data
-data.csv: renv
+data.csv: renv input_space.csv
 	Rscript data_generation.r
 # Activate venv
 env: requirements.txt

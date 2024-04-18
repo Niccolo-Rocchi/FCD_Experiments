@@ -11,14 +11,16 @@ from notears_admm.postprocess import postprocess
 # Set seed
 utils.set_random_seed(42)
 
-# Import data
+# Read input space
+input_space = pd.read_csv('input_space.csv')
+nclients = input_space['nclients'].loc[0]
+
+# Read data
 data = pd.read_csv('data.csv')
+nnodes = data.shape[1]
+ssize = int(data.shape[0]/float(nclients))
 
 # Set parameters
-nnodes = data.shape[1]
-nclients = 10
-ssize = int(data.shape[0]/nclients)
-
 lambda1 = 0.01 # default
 # threshold = 0.3 # default
 
