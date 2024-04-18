@@ -1,20 +1,24 @@
+VENV = env
+PYTHON = $(VENV)/bin/python
+
 # Perform FCD
-fcd : venv data_gen | ./notears-admm
-	. venv/bin/activate; \
-	python notears-admm.py
+fcd : env data.csv | notears-admm
+	$(PYTHON) notears-admm.py
 # Generate data
-data_gen: renv
+data.csv: renv
 	Rscript data_generation.r
 # Activate venv
-venv: requirements.txt
-	python -m venv venv; \
-	. venv/bin/activate; \
-	pip install -r requirements.txt
+env: requirements.txt
+	python -m venv $(VENV)
+	$(PYTHON) -m pip install -r requirements.txt
 # Activate renv
-renv: renv.lock .Rprofile renv/activate.R renv/settings.json
-	R -e "install.packages('renv')"
-	R -e 'renv::restore()'
+renv: renv.lock
+	R -e 'install.packages("renv", repos = "http://cran.us.r-project.org"); renv::restore()'
 # Download NOTEARS-ADMM source code
-./notears-admm:
+notears-admm:
 	git clone https://github.com/ignavierng/notears-admm.git
-	
+# PHONY targets
+.PHONY: clean
+clean:
+	 rm -rf $(VENV) renv __pycache__
+
