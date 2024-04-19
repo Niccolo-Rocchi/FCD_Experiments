@@ -5,6 +5,7 @@ set.seed(42)
 
 # Set directory where to save datasets
 dirname <- 'datasets/'
+unlink(dirname, recursive = TRUE)
 dir.create(dirname, showWarnings = FALSE)
 
 # Read input space
