@@ -1,3 +1,4 @@
 # Instructions
 
-1. To run all, type `bash run.sh`
+1. Install dependencies with `make install`
+2. Execute code with `make`

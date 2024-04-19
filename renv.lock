@@ -28,9 +28,6 @@
       }
     ]
   },
-  "Bioconductor": {
-    "Version": "3.18"
-  },
   "Packages": {
     "bnlearn": {
       "Package": "bnlearn",
@@ -42,6 +39,16 @@
         "methods"
       ],
       "Hash": "f44f273e175607cdfa895d866a892fb1"
+    },
+    "jsonlite": {
+      "Package": "jsonlite",
+      "Version": "1.8.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods"
+      ],
+      "Hash": "e1b9c55281c5adc4dd113652d9e26768"
     },
     "renv": {
       "Package": "renv",
