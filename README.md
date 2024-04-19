@@ -2,3 +2,4 @@
 
 1. Install dependencies with `make install`
 2. Execute code with `make`
+3. Clean installed packages with `make clean`
