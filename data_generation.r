@@ -38,6 +38,6 @@ for (i in seq(1, nrow(input_space))) {
   data <- rbn(bn, ssize)
   
   # Save data
-  write.csv(data, paste0(dirname, 'data_', ID, '.csv'))
+  write.csv(data, paste0(dirname, ID, '.csv'))
 }
 
