@@ -1,10 +1,11 @@
+### Note: only notears-admm has been implemented up to now.
 import pandas as pd
 import numpy as np
 import torch
 import os
 
 import sys
-sys.path.append('./notears-admm')
+sys.path.append('./code/notears-admm')
 from notears_admm import utils
 from notears_admm.linear_admm import notears_linear_admm
 from notears_admm.postprocess import postprocess

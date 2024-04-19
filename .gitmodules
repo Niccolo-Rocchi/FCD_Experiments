@@ -1,3 +1,3 @@
-[submodule "notears-admm"]
-	path = notears-admm
+[submodule "code/notears-admm"]
+	path = code/notears-admm
 	url = https://github.com/ignavierng/notears-admm.git
