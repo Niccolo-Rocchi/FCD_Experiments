@@ -83,6 +83,9 @@ for d in data_list:
     metrics.append(metric)
 
 # Return metrics
+results_path = 'results'
 metrics = pd.DataFrame.from_records(metrics)
-metrics.to_csv('metrics.csv')
+if not os.path.exists(results_path):
+  os.mkdir(results_path)
+metrics.to_csv(f'{results_path}/metrics.csv')
 
