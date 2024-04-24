@@ -11,8 +11,8 @@ rd.seed(seed)
 # Hypercube definition
 feature_names = ['nnodes', 'nclients', 'ssize']
 nnodes = [5] # number of nodes
-nclients = [10] # number of clients
-ssize = [1000] # sample size
+nclients = [2] # number of clients
+ssize = [100] # sample size
 
 # Input space generation
 input_space = list()

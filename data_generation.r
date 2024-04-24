@@ -35,7 +35,7 @@ for (i in seq(1, nrow(input_space))) {
   params <- list()
   for (x in nodes(G)) {
     pars <- parents(G, x)
-    pars.coef <- rep(1, length(pars))
+    pars.coef <- rep(0.1, length(pars))
     names(pars.coef) <- pars
     params[[x]] <- list(coef=c('(Intercept)'=0, pars.coef), sd=1)
   }

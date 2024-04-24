@@ -6,6 +6,10 @@ import cdt
 import sys
 import os
 
+# Suppress all warnings
+import warnings
+warnings.filterwarnings("ignore")
+
 ## Import FCD code:
 # 1. notears-admm
 sys.path.append('./code/notears-admm')
@@ -34,7 +38,7 @@ for d in data_list:
     # extract its ID,
     ID = d[:d.find('.csv')]
     # set hypercube parameters based on its ID,
-    nclients = input_space[input_space['ID'] == ID].at[0,'nclients']
+    nclients = input_space[input_space['ID'] == ID].iloc[0].at['nclients']
     nnodes = data.shape[1]
     ssize = data.shape[0]
     # and record hypercube parameters
