@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import torch
+import cdt
 import sys
 import os
 
@@ -21,24 +22,63 @@ input_space = pd.read_csv('input_space.csv')
 data_path = './datasets'
 data_list = os.listdir(data_path)
 
+# Initialize metrics
+metrics = list()
+
 # For each data set ...
 for d in data_list:
     # ... read it,
     data = pd.read_csv(f'{data_path}/{d}')
+    # drop row index,
+    data = data.iloc[:, 1:]
     # extract its ID,
     ID = d[:d.find('.csv')]
-    # and set hypercube parameters based on its ID
+    # set hypercube parameters based on its ID,
     nclients = input_space[input_space['ID'] == ID].at[0,'nclients']
     nnodes = data.shape[1]
-    ssize = int(data.shape[0]/float(nclients))
+    ssize = data.shape[0]
+    # and record hypercube parameters
+    record = {'nnodes':nnodes, 'nclient':nclients, 'ssize':ssize}
     
-    ## Perform FCD
+    ### Perform FCD
     
-    # 1. notears-admm
+    ## 1. notears-admm
     # Create tensor of data
-    input_data = data.loc[: nclients * ssize, :]
-    input_data = np.array(input_data).reshape(nclients, ssize, nnodes)
+    single_ssize = int(ssize/float(nclients))
+    input_data = np.array(data).reshape(nclients, single_ssize, nnodes)
     # Run algorithm
-    G_hat  = notears_linear_admm(input_data, lambda1=0.01, threshold=0.3, verbose=False) # Default settings
+    G_pred  = notears_linear_admm(input_data, verbose=False) # Default settings
+    # Postprocess output
+    G_pred = postprocess(G_pred, threshold=0.3) # Default settings
+    # Binarize output
+    G_pred[np.abs(G_pred) > 0.5] = 1
 
     # 2. ... work in progress ...
+
+    ### Compute metrics
+    
+    ## 1. notears-admm
+    metric = record.copy()
+    metric['alg'] = 'notears-admm'
+    # Read true graph
+    G_true = pd.read_csv(f'./dags/{ID}.csv')
+    # Cast graphs to adjacency matrices
+    G_pred = np.array(G_pred)
+    G_true = np.array(G_true)[:,1:]
+    # Compute ``Structural Hamming Distance'' (SHD)
+    shd = cdt.metrics.SHD(G_true, G_pred)
+    metric['shd'] = shd
+    # Compute ``Strutural Intervention Distance'' (SID)
+    sid = cdt.metrics.SID(G_true, G_pred)
+    metric['sid'] = sid
+    # Compute ``Area under the precision recall curve''' (AUC)
+    auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
+    metric['auc'] = auc
+    
+    ## Return metrics
+    metrics.append(metric)
+
+# Return metrics
+metrics = pd.DataFrame.from_records(metrics)
+metrics.to_csv('metrics.csv')
+

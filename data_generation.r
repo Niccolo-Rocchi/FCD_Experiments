@@ -1,12 +1,21 @@
+# R libraries
 library(bnlearn)
+
+# Python libraries (only for `renv.lock`)
+library(SID)
 
 # Set seed
 set.seed(42)
 
 # Set directory where to save datasets
-dirname <- 'datasets/'
-unlink(dirname, recursive = TRUE)
-dir.create(dirname, showWarnings = FALSE)
+dirname_datasets <- 'datasets/'
+unlink(dirname_datasets, recursive = TRUE)
+dir.create(dirname_datasets, showWarnings = FALSE)
+
+# Set directory where to save DAGs
+dirname_dags <- 'dags/'
+unlink(dirname_dags, recursive = TRUE)
+dir.create(dirname_dags, showWarnings = FALSE)
 
 # Read input space
 input_space <- read.csv('input_space.csv')
@@ -38,6 +47,9 @@ for (i in seq(1, nrow(input_space))) {
   data <- rbn(bn, ssize)
   
   # Save data
-  write.csv(data, paste0(dirname, ID, '.csv'))
+  write.csv(data, paste0(dirname_datasets, ID, '.csv'))
+
+  # Save DAG
+  write.csv(amat(G), paste0(dirname_dags, ID, '.csv') )
 }
 
