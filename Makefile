@@ -1,4 +1,4 @@
-PYTHON = env/bin/python
+PYTHON = env/bin/python3
 
 # Perform FCD
 metrics.csv: input_space.csv dags datasets fcd.py code
@@ -17,17 +17,17 @@ dags datasets: data_generation.r input_space.csv
 .PHONY: clean
 clean:
 	@echo 'Cleaning metrics and input space...'
-	@rm metrics.csv input_space.csv
+	@-rm  metrics.csv input_space.csv
 	@echo 'Cleaning datasets and DAGs ...'
-	@rm -rf datasets dags
+	@-rm -r datasets dags
 	@echo 'Cleaning virtual environments ...'
-	@rm -rf env renv
+	@-rm -r env renv
 	@echo 'Cleaning pycache ...'
-	@rm -rf __pycache__
+	@-rm -r __pycache__
 install:
 	# Python virtual environment (env)
 	@echo 'Setting up env ...'
-	@python -m venv env
+	@python3 -m venv env
 	@$(PYTHON) -m pip install -r requirements.txt
 	# R virtual environment (renv)
 	@echo 'Setting up renv ...'
