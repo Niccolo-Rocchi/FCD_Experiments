@@ -49,8 +49,8 @@ for d in data_list:
     
     ## 1. notears-admm
     # Create tensor of data
-    single_ssize = int(ssize/float(nclients))
-    input_data = np.array(data).reshape(nclients, single_ssize, nnodes)
+    data = np.array(data)[:ssize - ssize%nclients,:]
+    input_data = data.reshape(nclients, ssize//nclients, nnodes)
     # Run algorithm
     start = time.time()
     G_pred  = notears_linear_admm(input_data, verbose=False) # Default settings
