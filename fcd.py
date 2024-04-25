@@ -1,10 +1,15 @@
 # Import packages
 import pandas as pd
 import numpy as np
+import time
 import torch
 import cdt
 import sys
 import os
+
+# Suppress all warnings
+import warnings
+warnings.filterwarnings("ignore")
 
 ## Import FCD code:
 # 1. notears-admm
@@ -34,7 +39,7 @@ for d in data_list:
     # extract its ID,
     ID = d[:d.find('.csv')]
     # set hypercube parameters based on its ID,
-    nclients = input_space[input_space['ID'] == ID].at[0,'nclients']
+    nclients = input_space[input_space['ID'] == ID].iloc[0].at['nclients']
     nnodes = data.shape[1]
     ssize = data.shape[0]
     # and record hypercube parameters
@@ -44,12 +49,14 @@ for d in data_list:
     
     ## 1. notears-admm
     # Create tensor of data
-    single_ssize = int(ssize/float(nclients))
-    input_data = np.array(data).reshape(nclients, single_ssize, nnodes)
+    data = np.array(data)[:ssize - ssize%nclients,:]
+    input_data = data.reshape(nclients, ssize//nclients, nnodes)
     # Run algorithm
+    start = time.time()
     G_pred  = notears_linear_admm(input_data, verbose=False) # Default settings
     # Postprocess output
     G_pred = postprocess(G_pred, threshold=0.3) # Default settings
+    end = time.time()
     # Binarize output
     G_pred[np.abs(G_pred) > 0.5] = 1
 
@@ -74,11 +81,16 @@ for d in data_list:
     # Compute ``Area under the precision recall curve''' (AUC)
     auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
     metric['auc'] = auc
+    # Compute time
+    metric['time (s)'] = end - start
     
     ## Return metrics
     metrics.append(metric)
 
 # Return metrics
+results_path = 'results'
 metrics = pd.DataFrame.from_records(metrics)
-metrics.to_csv('metrics.csv')
+if not os.path.exists(results_path):
+  os.mkdir(results_path)
+metrics.to_csv(f'{results_path}/metrics.csv')
 
