@@ -1,6 +1,7 @@
 # Import packages
 import pandas as pd
 import numpy as np
+import time
 import torch
 import cdt
 import sys
@@ -51,9 +52,11 @@ for d in data_list:
     single_ssize = int(ssize/float(nclients))
     input_data = np.array(data).reshape(nclients, single_ssize, nnodes)
     # Run algorithm
+    start = time.time()
     G_pred  = notears_linear_admm(input_data, verbose=False) # Default settings
     # Postprocess output
     G_pred = postprocess(G_pred, threshold=0.3) # Default settings
+    end = time.time()
     # Binarize output
     G_pred[np.abs(G_pred) > 0.5] = 1
 
@@ -78,6 +81,8 @@ for d in data_list:
     # Compute ``Area under the precision recall curve''' (AUC)
     auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
     metric['auc'] = auc
+    # Compute time
+    metric['time (s)'] = end - start
     
     ## Return metrics
     metrics.append(metric)
