@@ -1,8 +1,8 @@
 # Import packages
 import pandas as pd
+import random
 import numpy as np
 import time
-import torch
 import cdt
 import sys
 import os
@@ -20,7 +20,11 @@ from notears_admm.postprocess import postprocess
 # 2. ... work in progress ...
 
 # Set seed
-utils.set_random_seed(42)
+seed = 42
+rd = random.Random()
+rd.seed(seed)
+utils.set_random_seed(seed)
+
 # Read input space
 input_space = pd.read_csv('input_space.csv')
 # Read data sets
@@ -35,7 +39,7 @@ for d in data_list:
     # ... read it,
     data = pd.read_csv(f'{data_path}/{d}')
     # drop row index,
-    data = data.iloc[:, 1:]
+    # data = data.iloc[:, 1:]
     # extract its ID,
     ID = d[:d.find('.csv')]
     # set hypercube parameters based on its ID,
@@ -75,9 +79,6 @@ for d in data_list:
     # Compute ``Structural Hamming Distance'' (SHD)
     shd = cdt.metrics.SHD(G_true, G_pred)
     metric['shd'] = shd
-    # Compute ``Strutural Intervention Distance'' (SID)
-    sid = cdt.metrics.SID(G_true, G_pred)
-    metric['sid'] = sid
     # Compute ``Area under the precision recall curve''' (AUC)
     auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
     metric['auc'] = auc

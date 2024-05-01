@@ -9,12 +9,12 @@ input_space.csv: input_space_generation.py
 	@echo 'Generating input space ...'
 	@$(PYTHON) input_space_generation.py
 # Generate DAGs and datasets
-dags datasets: data_generation.r input_space.csv
+dags datasets: generation.py input_space.csv
 	@echo 'Generating DAGs and datasets ...'
-	@Rscript data_generation.r
+	@$(PYTHON) generation.py
 	
 # PHONY targets
-.PHONY: clean
+.PHONY: clean install
 clean:
 	@echo 'Cleaning  ...'
 	@-rm  input_space.csv
@@ -24,8 +24,5 @@ install:
 	@echo 'Setting up env ...'
 	@python3 -m venv env
 	@$(PYTHON) -m pip install -r requirements.txt
-	# R virtual environment (renv)
-	@echo 'Setting up renv ...'
-	@R -e 'install.packages("renv", repos = "http://cran.us.r-project.org"); renv::restore()'
 	# Download FCD repositories
 	@git submodule update --init
