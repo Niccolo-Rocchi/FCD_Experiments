@@ -6,6 +6,7 @@ import time
 import cdt
 import sys
 import os
+import unittest
 
 # Suppress all warnings
 import warnings
@@ -70,7 +71,7 @@ for d in data_list:
     
     ## 1. notears-admm
     metric = record.copy()
-    metric['alg'] = 'notears-admm'
+    metric['alg'] = "notears-admm"
     # Read true graph
     G_true = pd.read_csv(f'./dags/{ID}.csv')
     # Cast graphs to adjacency matrices
@@ -83,8 +84,7 @@ for d in data_list:
     auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
     metric['auc'] = auc
     # Compute time
-    metric['time (s)'] = end - start
-    
+    metric['time(s)'] = end - start
     ## Return metrics
     metrics.append(metric)
 
@@ -94,4 +94,34 @@ metrics = pd.DataFrame.from_records(metrics)
 if not os.path.exists(results_path):
   os.mkdir(results_path)
 metrics.to_csv(f'{results_path}/metrics.csv')
+
+### Unit tests
+class Test(unittest.TestCase):
+
+    # Assert input space is not empty
+    def test_notempty(self):    
+        self.assertTrue(input_space.shape[0] != 0)
+        self.assertTrue(input_space.shape[1] != 0)
+
+    # Metric number must be consistent
+    def test_size(self):
+        self.assertTrue(metrics.shape[0] != 0)
+        self.assertTrue(metrics.shape[1] != 0)
+        self.assertEqual(metrics.shape[0]/(len(np.unique(metrics['alg']))), len(data_list))
+        self.assertEqual(input_space.shape[0], len(data_list))
+
+    # Test metrics values
+    def test_metric(self):
+        self.assertEqual(metrics['shd'].dtype, float)
+        self.assertEqual(metrics['auc'].dtype, float)
+        self.assertEqual(metrics['time(s)'].dtype, float)
+        self.assertEqual(sum(metrics['shd'] < 0), 0)
+        self.assertEqual(sum(metrics['auc'] < 0), 0)
+        self.assertEqual(sum(metrics['auc'] > 1), 0)
+        self.assertEqual(sum(metrics['time(s)'] < 0), 0)
+        
+    # Results folder must exist and be not empty
+    def test_folder(self):
+        self.assertTrue(os.path.exists(results_path))
+        self.assertTrue(len(os.listdir(results_path)) != 0)
 
