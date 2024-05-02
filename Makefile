@@ -18,7 +18,7 @@ data_ids.csv: generation.py input_space.csv
 clean:
 	@echo 'Cleaning  ...'
 	@-rm  input_space.csv data_ids.csv
-	@-rm -r results datasets dags env renv __pycache__
+	@-rm -r results datasets dags env __pycache__ .pytest_cache
 init:
 	# Python virtual environment (env)
 	@echo 'Setting up env ...'
