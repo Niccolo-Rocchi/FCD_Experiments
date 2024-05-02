@@ -5,21 +5,21 @@ results/metrics.csv: input_space.csv dags datasets fcd.py code
 	@echo 'Performing FCD ...'
 	@$(PYTHON) fcd.py
 # Generate input space
-input_space.csv: input_space_generation.py
+input_space.csv: input_space.py
 	@echo 'Generating input space ...'
-	@$(PYTHON) input_space_generation.py
+	@$(PYTHON) input_space.py
 # Generate DAGs and datasets
 dags datasets: generation.py input_space.csv
 	@echo 'Generating DAGs and datasets ...'
 	@$(PYTHON) generation.py
 	
 # PHONY targets
-.PHONY: clean install
+.PHONY: clean init
 clean:
 	@echo 'Cleaning  ...'
 	@-rm  input_space.csv
 	@-rm -r results datasets dags env renv __pycache__
-install:
+init:
 	# Python virtual environment (env)
 	@echo 'Setting up env ...'
 	@python3 -m venv env
