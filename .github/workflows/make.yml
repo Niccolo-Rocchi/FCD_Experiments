@@ -24,7 +24,7 @@ jobs:
       run: make init
       
     - name: Run FCD
-      run: make
+      run: make --debug=verbose --dry-run
       
     - name: Clean directory again
       run: make clean
