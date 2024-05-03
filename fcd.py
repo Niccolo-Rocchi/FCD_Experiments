@@ -88,11 +88,16 @@ for d in data_list:
     ## Return metrics
     metrics.append(metric)
 
-# Return metrics
+# Create metrics folder, or empty it
 results_path = 'results'
+try:
+    os.mkdir(results_path)
+except:
+    for filename in os.listdir(results_path):
+      os.unlink(os.path.join(results_path, filename))
+      
+# Write metrics
 metrics = pd.DataFrame.from_records(metrics)
-if not os.path.exists(results_path):
-  os.mkdir(results_path)
 metrics.to_csv(f'{results_path}/metrics.csv')
 
 ### Unit tests
@@ -103,8 +108,14 @@ class Test(unittest.TestCase):
         self.assertTrue(input_space.shape[0] != 0)
         self.assertTrue(input_space.shape[1] != 0)
 
-    # Metric number must be consistent
+    # Results folder must exist and metrics are unique
+    def test_folder(self):
+        self.assertTrue(os.path.exists(results_path))
+        self.assertTrue(len(os.listdir(results_path)) == 1)
+
+    # Metric shape  must be consistent
     def test_size(self):
+        metrics = pd.read_csv(f'{results_path}/metrics.csv')
         self.assertTrue(metrics.shape[0] != 0)
         self.assertTrue(metrics.shape[1] != 0)
         self.assertEqual(metrics.shape[0]/(len(np.unique(metrics['alg']))), len(data_list))
@@ -112,6 +123,7 @@ class Test(unittest.TestCase):
 
     # Test metrics values
     def test_metric(self):
+        metrics = pd.read_csv(f'{results_path}/metrics.csv')
         self.assertEqual(metrics['shd'].dtype, float)
         self.assertEqual(metrics['auc'].dtype, float)
         self.assertEqual(metrics['time(s)'].dtype, float)
@@ -120,8 +132,3 @@ class Test(unittest.TestCase):
         self.assertEqual(sum(metrics['auc'] > 1), 0)
         self.assertEqual(sum(metrics['time(s)'] < 0), 0)
         
-    # Results folder must exist and be not empty
-    def test_folder(self):
-        self.assertTrue(os.path.exists(results_path))
-        self.assertTrue(len(os.listdir(results_path)) != 0)
-

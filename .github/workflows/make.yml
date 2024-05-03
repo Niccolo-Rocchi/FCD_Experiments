@@ -1,10 +1,4 @@
-name: Make
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -19,8 +13,8 @@ jobs:
     - name: Install dependencies
       run: make init
 
-    # - name: Run FCD
-      # run: make
+    - name: Run FCD
+      run: make
 
     - name: Clean directory again
       run: make clean
