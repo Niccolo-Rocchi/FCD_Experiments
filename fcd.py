@@ -18,7 +18,10 @@ sys.path.append('./code/notears-admm')
 from notears_admm import utils
 from notears_admm.linear_admm import notears_linear_admm
 from notears_admm.postprocess import postprocess
-# 2. ... work in progress ...
+# 2. FedC2SL (FedPC)
+sys.path.append('./code/FedC2SL/FedC2SL')
+from alg.FedPC import pc
+# 3. ... work in progress ...
 
 # Set seed
 seed = 42
@@ -28,55 +31,51 @@ utils.set_random_seed(seed)
 
 # Read input space
 input_space = pd.read_csv('input_space.csv')
-# Read data sets
+# Read IDs and cast to list
+ids = pd.read_csv('data_ids.csv')
+ids = list(ids['ids'])
+# Read data sets path
 data_path = './datasets'
-data_list = os.listdir(data_path)
 
 # Initialize metrics
 metrics = list()
 
-# For each data set ...
-for d in data_list:
-    # ... read it,
-    data = pd.read_csv(f'{data_path}/{d}')
-    # drop row index,
-    # data = data.iloc[:, 1:]
-    # extract its ID,
-    ID = d[:d.find('.csv')]
-    # set hypercube parameters based on its ID,
-    nclients = input_space[input_space['ID'] == ID].iloc[0].at['nclients']
-    nnodes = data.shape[1]
-    ssize = data.shape[0]
-    # and record hypercube parameters
+# For each ID
+for id in ids:
+    # Read data set
+    data = pd.read_csv(f'{data_path}/{id}.csv')
+    # Set hypercube parameters based on ID
+    nclients = input_space[input_space['ID'] == id].iloc[0].at['nclients']
+    nnodes = input_space[input_space['ID'] == id].iloc[0].at['nnodes']
+    ssize = input_space[input_space['ID'] == id].iloc[0].at['ssize']
+    # Perform tests on consistency of data set
+    assert(nnodes == data.shape[1])
+    assert(ssize == data.shape[0])
+    # Record hypercube parameters
     record = {'nnodes':nnodes, 'nclient':nclients, 'ssize':ssize}
+    # Cast data to numpy array
+    data = np.array(data)[:ssize - ssize%nclients,:]
+    # Read true graph and cast to numpy array
+    G_true = pd.read_csv(f'./dags/{id}.csv')
+    G_true = np.array(G_true)[:,1:]
     
     ### Perform FCD
     
     ## 1. notears-admm
-    # Create tensor of data
-    data = np.array(data)[:ssize - ssize%nclients,:]
+    # Create input data
     input_data = data.reshape(nclients, ssize//nclients, nnodes)
     # Run algorithm
     start = time.time()
     G_pred  = notears_linear_admm(input_data, verbose=False) # Default settings
-    # Postprocess output
+    # Postprocess output (package function)
     G_pred = postprocess(G_pred, threshold=0.3) # Default settings
     end = time.time()
     # Binarize output
     G_pred[np.abs(G_pred) > 0.5] = 1
 
-    # 2. ... work in progress ...
-
-    ### Compute metrics
-    
-    ## 1. notears-admm
+    ## 1.1. notears-admm metrics
     metric = record.copy()
     metric['alg'] = "notears-admm"
-    # Read true graph
-    G_true = pd.read_csv(f'./dags/{ID}.csv')
-    # Cast graphs to adjacency matrices
-    G_pred = np.array(G_pred)
-    G_true = np.array(G_true)[:,1:]
     # Compute ``Structural Hamming Distance'' (SHD)
     shd = cdt.metrics.SHD(G_true, G_pred)
     metric['shd'] = shd
@@ -87,6 +86,32 @@ for d in data_list:
     metric['time(s)'] = end - start
     ## Return metrics
     metrics.append(metric)
+
+    ## 2. FedC2SL (FedPC)
+    # Create input data
+    input_data = data.copy()
+    # Run algorithm
+    start = time.time()
+    G_pred = pc(input_data, indep_test='fed_cit', client_num=nclients, show_progress=False) # Default settings
+    end = time.time()
+    # Get the adjacency matrix (`causal-learn` function)
+    G_pred = G_pred.G.graph
+
+    ## 2.1. FedC2SL (FedPC) metrics
+    metric = record.copy()
+    metric['alg'] = "FedC2SL(FedPC)"
+    # Compute ``Structural Hamming Distance'' (SHD)
+    shd = cdt.metrics.SHD(G_true, G_pred)
+    metric['shd'] = shd
+    # Compute ``Area under the precision recall curve''' (AUC)
+    auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
+    metric['auc'] = auc
+    # Compute time
+    metric['time(s)'] = end - start
+    ## Return metrics
+    metrics.append(metric)
+    
+    ## 3. ... work in progress ...
 
 # Create metrics folder, or empty it
 results_path = 'results'
@@ -113,8 +138,9 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(results_path))
         self.assertTrue(len(os.listdir(results_path)) == 1)
 
-    # Metric shape  must be consistent
+    # Metric shape must be consistent
     def test_size(self):
+        data_list = list(os.listdir(data_path))
         metrics = pd.read_csv(f'{results_path}/metrics.csv')
         self.assertTrue(metrics.shape[0] != 0)
         self.assertTrue(metrics.shape[1] != 0)
