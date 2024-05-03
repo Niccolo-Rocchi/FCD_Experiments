@@ -1,5 +1,5 @@
 *.csv
-renv
+!tests/*.csv
 env
 __*
 datasets

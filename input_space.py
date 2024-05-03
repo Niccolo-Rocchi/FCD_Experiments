@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
 import uuid
 import random
 import itertools
+import unittest
 
 # Set seed
 seed = 42
@@ -24,3 +26,16 @@ input_space = pd.DataFrame.from_records(input_space)
 
 # Save input space
 input_space.to_csv('input_space.csv')
+
+### Unit tests
+class Test(unittest.TestCase):
+
+    # Data set shape must be consistent with input shapes
+    def test_size(self):
+        self.assertEqual(len(feature_names), input_space.shape[1]-1)
+        self.assertEqual(len(nnodes)*len(ssize)*len(nclients), input_space.shape[0])
+
+    # All IDs must be different
+    def test_id(self):
+        self.assertEqual(len(np.unique(input_space['ID'])), input_space.shape[0])
+    

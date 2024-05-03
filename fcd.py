@@ -1,11 +1,12 @@
 # Import packages
 import pandas as pd
+import random
 import numpy as np
 import time
-import torch
 import cdt
 import sys
 import os
+import unittest
 
 # Suppress all warnings
 import warnings
@@ -20,7 +21,11 @@ from notears_admm.postprocess import postprocess
 # 2. ... work in progress ...
 
 # Set seed
-utils.set_random_seed(42)
+seed = 42
+rd = random.Random()
+rd.seed(seed)
+utils.set_random_seed(seed)
+
 # Read input space
 input_space = pd.read_csv('input_space.csv')
 # Read data sets
@@ -35,7 +40,7 @@ for d in data_list:
     # ... read it,
     data = pd.read_csv(f'{data_path}/{d}')
     # drop row index,
-    data = data.iloc[:, 1:]
+    # data = data.iloc[:, 1:]
     # extract its ID,
     ID = d[:d.find('.csv')]
     # set hypercube parameters based on its ID,
@@ -66,7 +71,7 @@ for d in data_list:
     
     ## 1. notears-admm
     metric = record.copy()
-    metric['alg'] = 'notears-admm'
+    metric['alg'] = "notears-admm"
     # Read true graph
     G_true = pd.read_csv(f'./dags/{ID}.csv')
     # Cast graphs to adjacency matrices
@@ -75,22 +80,55 @@ for d in data_list:
     # Compute ``Structural Hamming Distance'' (SHD)
     shd = cdt.metrics.SHD(G_true, G_pred)
     metric['shd'] = shd
-    # Compute ``Strutural Intervention Distance'' (SID)
-    sid = cdt.metrics.SID(G_true, G_pred)
-    metric['sid'] = sid
     # Compute ``Area under the precision recall curve''' (AUC)
     auc = cdt.metrics.precision_recall(G_true, G_pred)[0]
     metric['auc'] = auc
     # Compute time
-    metric['time (s)'] = end - start
-    
+    metric['time(s)'] = end - start
     ## Return metrics
     metrics.append(metric)
 
-# Return metrics
+# Create metrics folder, or empty it
 results_path = 'results'
+try:
+    os.mkdir(results_path)
+except:
+    for filename in os.listdir(results_path):
+      os.unlink(os.path.join(results_path, filename))
+      
+# Write metrics
 metrics = pd.DataFrame.from_records(metrics)
-if not os.path.exists(results_path):
-  os.mkdir(results_path)
 metrics.to_csv(f'{results_path}/metrics.csv')
 
+### Unit tests
+class Test(unittest.TestCase):
+
+    # Assert input space is not empty
+    def test_notempty(self):    
+        self.assertTrue(input_space.shape[0] != 0)
+        self.assertTrue(input_space.shape[1] != 0)
+
+    # Results folder must exist and metrics are unique
+    def test_folder(self):
+        self.assertTrue(os.path.exists(results_path))
+        self.assertTrue(len(os.listdir(results_path)) == 1)
+
+    # Metric shape  must be consistent
+    def test_size(self):
+        metrics = pd.read_csv(f'{results_path}/metrics.csv')
+        self.assertTrue(metrics.shape[0] != 0)
+        self.assertTrue(metrics.shape[1] != 0)
+        self.assertEqual(metrics.shape[0]/(len(np.unique(metrics['alg']))), len(data_list))
+        self.assertEqual(input_space.shape[0], len(data_list))
+
+    # Test metrics values
+    def test_metric(self):
+        metrics = pd.read_csv(f'{results_path}/metrics.csv')
+        self.assertEqual(metrics['shd'].dtype, float)
+        self.assertEqual(metrics['auc'].dtype, float)
+        self.assertEqual(metrics['time(s)'].dtype, float)
+        self.assertEqual(sum(metrics['shd'] < 0), 0)
+        self.assertEqual(sum(metrics['auc'] < 0), 0)
+        self.assertEqual(sum(metrics['auc'] > 1), 0)
+        self.assertEqual(sum(metrics['time(s)'] < 0), 0)
+        

@@ -1,0 +1,31 @@
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+        
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+          python-version: ${{ matrix.python-version }}
+    
+    - name: Clean directory
+      run: make clean
+      
+    - name: Install dependencies
+      run: make init
+      
+    - name: Run FCD
+      run: make --debug=verbose --dry-run
+      
+    - name: Clean directory again
+      run: make clean
+
