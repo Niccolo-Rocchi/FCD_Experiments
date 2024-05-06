@@ -28,14 +28,14 @@ for index in range(input_space.shape[0]):
     ssize = int(input_space.iloc[index].at['ssize'])
     ID = input_space.iloc[index].at['ID']
     # generate BN,
-    bn = gum.randomBN(n = nnodes, ratio_arc = 1)
+    bn = gum.randomBN(n=nnodes, names=[str(x) for x in range(nnodes)], ratio_arc=1)
     # save its adjacency matrix,
     bn_amat = pd.DataFrame(bn.adjacencyMatrix())
     bn_amat.to_csv(f'{dags_path}/{ID}.csv')
     # sample data from BN,
     data = gum.BNDatabaseGenerator(bn)
     data.drawSamples(ssize)
-    data.setVarOrder([f'X0{x}' for x in bn.nodes()])
+    data.setVarOrder([f'{x}' for x in bn.nodes()])
     # save data
     data.toCSV(f'{datasets_path}/{ID}.csv')
 
