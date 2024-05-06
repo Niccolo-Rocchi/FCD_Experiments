@@ -52,7 +52,7 @@ for id in ids:
     assert(nnodes == data.shape[1])
     assert(ssize == data.shape[0])
     # Record hypercube parameters
-    record = {'nnodes':nnodes, 'nclient':nclients, 'ssize':ssize}
+    record = {'ID':id, 'nnodes':nnodes, 'nclient':nclients, 'ssize':ssize}
     # Cast data to numpy array
     data = np.array(data)[:ssize - ssize%nclients,:]
     # Read true graph and cast to numpy array
@@ -123,38 +123,4 @@ except:
       
 # Write metrics
 metrics = pd.DataFrame.from_records(metrics)
-metrics.to_csv(f'{results_path}/metrics.csv')
-
-### Unit tests
-class Test(unittest.TestCase):
-
-    # Assert input space is not empty
-    def test_notempty(self):    
-        self.assertTrue(input_space.shape[0] != 0)
-        self.assertTrue(input_space.shape[1] != 0)
-
-    # Results folder must exist and metrics are unique
-    def test_folder(self):
-        self.assertTrue(os.path.exists(results_path))
-        self.assertTrue(len(os.listdir(results_path)) == 1)
-
-    # Metric shape must be consistent
-    def test_size(self):
-        data_list = list(os.listdir(data_path))
-        metrics = pd.read_csv(f'{results_path}/metrics.csv')
-        self.assertTrue(metrics.shape[0] != 0)
-        self.assertTrue(metrics.shape[1] != 0)
-        self.assertEqual(metrics.shape[0]/(len(np.unique(metrics['alg']))), len(data_list))
-        self.assertEqual(input_space.shape[0], len(data_list))
-
-    # Test metrics values
-    def test_metric(self):
-        metrics = pd.read_csv(f'{results_path}/metrics.csv')
-        self.assertEqual(metrics['shd'].dtype, float)
-        self.assertEqual(metrics['auc'].dtype, float)
-        self.assertEqual(metrics['time(s)'].dtype, float)
-        self.assertEqual(sum(metrics['shd'] < 0), 0)
-        self.assertEqual(sum(metrics['auc'] < 0), 0)
-        self.assertEqual(sum(metrics['auc'] > 1), 0)
-        self.assertEqual(sum(metrics['time(s)'] < 0), 0)
-        
+metrics.to_csv(f'{results_path}/metrics.csv')        

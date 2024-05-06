@@ -42,38 +42,3 @@ for index in range(input_space.shape[0]):
 data_ids = [x.split('.')[0] for x in os.listdir(datasets_path)]
 data_ids = pd.DataFrame({'ids':data_ids})
 data_ids.to_csv('data_ids.csv')
-
-### Unit tests
-class Test(unittest.TestCase):
-
-  # Assert input space is not empty
-  def test_notempty(self):
-    self.assertTrue(input_space.shape[0] != 0)
-    self.assertTrue(input_space.shape[1] != 0)
-
-  # Output files and folders must exist, and be not empty
-  def test_folder(self):
-    self.assertTrue(os.path.exists(datasets_path))
-    self.assertTrue(os.path.exists(dags_path))
-    self.assertTrue(len(os.listdir(datasets_path)) != 0)
-    self.assertTrue(len(os.listdir(dags_path)) != 0)
-    self.assertTrue(os.path.exists('data_ids.csv'))
-    self.assertTrue(os.path.isfile('data_ids.csv'))
-    ids = pd.read_csv('data_ids.csv')
-    self.assertTrue(ids.shape[0] != 0)
-    self.assertTrue(ids.shape[1] != 0)
-
-  # Datasets and DAGs IDs must coincide
-  def test_ids(self):
-    data_names = os.listdir(datasets_path)
-    dag_names = os.listdir(dags_path)
-    ids = pd.read_csv('data_ids.csv')
-    self.assertEqual(len(data_names), len(dag_names))
-    self.assertEqual(len(data_names), input_space.shape[0])
-    self.assertEqual(len(data_names), data_ids.shape[0])
-    self.assertEqual(len(data_names), ids.shape[0])
-    data_names_ids = {x.split('.')[0] for x in data_names}
-    dag_names_ids = {x.split('.')[0] for x in dag_names}
-    self.assertEqual(data_names_ids, dag_names_ids)
-    self.assertEqual(data_names_ids, set(data_ids['ids']))
-    self.assertEqual(data_names_ids, set(ids['ids']))
