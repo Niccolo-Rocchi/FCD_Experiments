@@ -1,3 +1,6 @@
 [submodule "code/notears-admm"]
 	path = code/notears-admm
 	url = https://github.com/ignavierng/notears-admm.git
+[submodule "code/FedC2SL"]
+	path = code/FedC2SL
+	url = https://github.com/wangzhaoyu07/FedC2SL.git

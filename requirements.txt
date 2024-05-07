@@ -1,4 +1,5 @@
 astroid==3.1.0
+causal-learn==0.1.2.8
 cdt==0.6.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
@@ -9,6 +10,7 @@ filelock==3.14.0
 fonttools==4.51.0
 fsspec==2024.3.1
 GPUtil==1.4.0
+graphviz==0.20.3
 idna==3.7
 igraph==0.11.4
 iniconfig==2.0.0
@@ -34,9 +36,11 @@ nvidia-cusparse-cu12==12.1.0.106
 nvidia-nccl-cu12==2.20.5
 nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.1.105
+opt-einsum==3.3.0
 packaging==24.0
 pandas==2.2.2
 patsy==0.5.6
+pgmpy==0.1.25
 pillow==10.3.0
 platformdirs==4.2.1
 pluggy==1.5.0
@@ -44,7 +48,9 @@ pyAgrum==1.13.1
 pydot==2.0.0
 pylint==3.1.0
 pyparsing==3.1.2
+pytest==8.2.0
 python-dateutil==2.9.0.post0
+python-igraph==0.11.4
 pytz==2024.1
 requests==2.31.0
 scikit-learn==1.4.2

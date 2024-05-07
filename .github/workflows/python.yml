@@ -18,9 +18,11 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         git submodule update --init
-    - name: Unit tests
+    - name: Setup
       run: |
-        python -m unittest input_space.py 
-        cp tests/toy_input_space.csv ./input_space.csv
-        python -m unittest generation.py
-        python -m unittest fcd.py
+        cp tests/toy_input_space.py input_space.py
+        python input_space.py
+        python generation.py
+        python fcd.py        
+    - name: Run tests
+      run: pytest
